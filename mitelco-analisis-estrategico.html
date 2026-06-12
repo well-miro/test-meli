@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=1280"/>
+  <title>MiTelco · Análisis Estratégico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:   #f7f3ea;
+      --cream-d: #ede8db;
+      --card:    #e6ddcd;
+      --ink:     #1b1f23;
+      --muted:   #4b525a;
+      --dim:     #8a9099;
+      --red:     #c43e2f;
+      --green:   #1f7a68;
+      --serif:   'IBM Plex Serif', Georgia, serif;
+      --sans:    'IBM Plex Sans', Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* —— SECTION SYSTEM —— */
+    .section {
+      min-height: 100vh;
+      width: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 160px 80px 160px;
+      overflow: hidden;
+    }
+    .section-light { background: var(--cream); }
+    .section-dark  { background: var(--ink); color: #f7f3ea; }
+    .section-card  { background: var(--card); }
+
+    /* —— NAV DOTS (signature element) —— */
+    .nav-dots {
+      position: fixed;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 200;
+    }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ink);
+      opacity: 0.2;
+      cursor: pointer;
+      transition: opacity 0.3s, transform 0.3s, background 0.3s;
+      border: none;
+    }
+    .nav-dot.active { opacity: 1; transform: scale(1.5); background: var(--red); }
+    .nav-dot:hover { opacity: 0.6; }
+
+    /* —— TOP BAR —— */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      border-bottom: 1px solid rgba(27,31,35,0.08);
+      background: rgba(247,243,234,0.92);
+      backdrop-filter: blur(10px);
+    }
+    .top-bar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .logo-bar {
+      width: 4px; height: 22px;
+      background: var(--red);
+      border-radius: 2px;
+    }
+    .top-bar-nav {
+      display: flex;
+      gap: 8px;
+    }
+    .top-bar-btn {
+      padding: 6px 16px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: color 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+    .top-bar-btn:hover { color: var(--ink); border-color: rgba(27,31,35,0.15); }
+
+    /* —— SECTION LABEL —— */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .label-bar {
+      width: 4px; height: 26px;
+      border-radius: 2px;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+    .label-bar.green { background: var(--green); }
+    .label-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* —— TYPOGRAPHY —— */
+    .display {
+      font-family: var(--serif);
+      font-size: clamp(52px, 6vw, 88px);
+      font-weight: 300;
+      line-height: 1.03;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+    }
+    .display.light { color: #f7f3ea; }
+
+    .heading {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4vw, 58px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .subheading {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.5vw, 34px);
+      font-weight: 400;
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+    }
+    .body-large {
+      font-family: var(--sans);
+      font-size: clamp(16px, 1.6vw, 22px);
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+    .caption {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    /* —— HERO —— */
+    #hero { padding-top: 120px; }
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      margin-bottom: 32px;
+    }
+    .hero-kicker {
+      font-family: var(--serif);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--dim);
+      margin-top: 48px;
+    }
+    .hero-meta {
+      position: absolute;
+      bottom: 48px;
+      left: 160px;
+      right: 160px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-top: 1px solid rgba(27,31,35,0.12);
+      padding-top: 20px;
+    }
+    .hero-meta-label {
+      font-size: 12px;
+      color: var(--dim);
+      font-weight: 400;
+    }
+    .scroll-cue {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--dim);
+    }
+    .scroll-arrow {
+      width: 20px; height: 20px;
+      border-right: 1.5px solid var(--dim);
+      border-bottom: 1.5px solid var(--dim);
+      transform: rotate(45deg);
+      animation: bob 1.8s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50%       { transform: rotate(45deg) translateY(4px); }
+    }
+
+    /* —— PERSONAS —— */
+    #personas { padding-top: 120px; }
+    .personas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .persona-card {
+      background: var(--card);
+      padding: 44px 48px;
+      border-radius: 2px;
+      position: relative;
+    }
+    .persona-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 20px;
+    }
+    .persona-quote {
+      font-family: var(--serif);
+      font-size: clamp(18px, 2vw, 26px);
+      font-weight: 300;
+      line-height: 1.45;
+      color: var(--ink);
+      font-style: italic;
+    }
+
+    /* —— PROBLEM SECTION —— */
+    #problem {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      padding: 120px 160px;
+    }
+    .stat-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-left: 1px solid rgba(27,31,35,0.12);
+    }
+    .stat-row {
+      padding: 32px 40px;
+      border-bottom: 1px solid rgba(27,31,35,0.08);
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .big-number {
+      font-family: var(--sans);
+      font-size: 56px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -0.04em;
+    }
+    .stat-desc {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 300;
+      max-width: 260px;
+      line-height: 1.5;
+    }
+
+    /* —— PUNTOS CRÍTICOS —— */
+    .criticos-section { padding: 80px 160px; min-height: auto; }
+    .criticos-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(27,31,35,0.12);
+    }
+    .criticos-count {
+      font-family: var(--sans);
+      font-size: 72px;
+      font-weight: 300;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: rgba(27,31,35,0.08);
+    }
+    .criticos-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+    }
+    .critico-card {
+      padding: 32px 28px;
+      background: var(--cream-d);
+      position: relative;
+      transition: background 0.25s;
+    }
+    .critico-card:hover { background: var(--card); }
+    .critico-num {
+      font-family: var(--sans);
+      font-size: 40px;
+      font-weight: 300;
+      color: var(--red);
+      line-height: 1;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+    .critico-stage {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 12px;
+    }
+    .critico-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.35;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .critico-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-weight: 300;
+    }
+    .critico-bottom {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(27,31,35,0.08);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* —— OPORTUNIDADES —— */
+    .opps-section { padding: 80px 160px; min-height: auto; background: var(--cream); }
+    .opps-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(27,31,35,0.12);
+    }
+    .opps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .opp-card {
+      padding: 36px 40px;
+      background: var(--cream-d);
+      border-radius: 2px;
+      border-left: 3px solid var(--green);
+      position: relative;
+      transition: background 0.25s, border-left-color 0.25s;
+    }
+    .opp-card:hover { background: var(--card); }
+    .opp-priority {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 12px;
+    }
+    .opp-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.3;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .opp-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+    .opp-resolves {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--red);
+    }
+    .opp-card.wide { grid-column: 1 / -1; border-left-color: var(--green); }
+
+    /* —— HOJA DE RUTA —— */
+    .roadmap-section { padding: 80px 160px; min-height: auto; background: var(--ink); color: #f7f3ea; }
+    .roadmap-header {
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(247,243,234,0.1);
+      margin-bottom: 48px;
+    }
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .phase-card {
+      padding: 36px 32px;
+      background: rgba(247,243,234,0.04);
+      border-right: 1px solid rgba(247,243,234,0.08);
+      position: relative;
+    }
+    .phase-card:last-child { border-right: none; }
+    .phase-horizon {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(247,243,234,0.4);
+      margin-bottom: 16px;
+    }
+    .phase-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      color: #f7f3ea;
+      margin-bottom: 24px;
+      line-height: 1.3;
+    }
+    .phase-items { display: flex; flex-direction: column; gap: 14px; }
+    .phase-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      color: rgba(247,243,234,0.6);
+      line-height: 1.5;
+      font-weight: 300;
+    }
+    .phase-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--red);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+    .phase-dot.green { background: var(--green); }
+
+    /* —— CTA / CIERRE —— */
+    #cierre {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 80px 160px;
+      min-height: 60vh;
+      border-top: 1px solid rgba(27,31,35,0.12);
+    }
+    .cierre-title {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 56px);
+      font-weight: 300;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      max-width: 840px;
+      margin-bottom: 40px;
+    }
+    .cierre-title em { font-style: italic; color: var(--red); }
+    .cta-row { display: flex; gap: 16px; align-items: center; }
+    .btn-primary {
+      padding: 14px 32px;
+      background: var(--red);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-outline {
+      padding: 14px 32px;
+      background: none;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 400;
+      border: 1px solid rgba(27,31,35,0.2);
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--ink); color: var(--ink); }
+
+    /* —— FOOTER —— */
+    footer {
+      padding: 24px 40px;
+      border-top: 1px solid rgba(27,31,35,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer .f-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    footer .f-label {
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    /* —— TRANSITIONS —— */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .fade-up.in { opacity: 1; transform: translateY(0); }
+    .fade-up.d1 { transition-delay: 0.1s; }
+    .fade-up.d2 { transition-delay: 0.2s; }
+    .fade-up.d3 { transition-delay: 0.3s; }
+    .fade-up.d4 { transition-delay: 0.4s; }
+    .fade-up.d5 { transition-delay: 0.5s; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="top-bar-logo">
+      <div class="logo-bar"></div>
+      MiTelco · Análisis Estratégico
+    </div>
+    <nav class="top-bar-nav">
+      <a href="#hero"       class="top-bar-btn">Portada</a>
+      <a href="#personas"   class="top-bar-btn">Usuarios</a>
+      <a href="#problem"    class="top-bar-btn">Problema</a>
+      <a href="#criticos"   class="top-bar-btn">Puntos críticos</a>
+      <a href="#oportunidades" class="top-bar-btn">Oportunidades</a>
+      <a href="#roadmap"    class="top-bar-btn">Hoja de ruta</a>
+    </nav>
+  </header>
+
+  <!-- NAV DOTS -->
+  <div class="nav-dots" id="navDots">
+    <button class="nav-dot active" data-target="hero" title="Portada"></button>
+    <button class="nav-dot" data-target="personas" title="Usuarios"></button>
+    <button class="nav-dot" data-target="problem" title="Problema central"></button>
+    <button class="nav-dot" data-target="criticos" title="Puntos críticos"></button>
+    <button class="nav-dot" data-target="oportunidades" title="Oportunidades"></button>
+    <button class="nav-dot" data-target="roadmap" title="Hoja de ruta"></button>
+    <button class="nav-dot" data-target="cierre" title="Cierre"></button>
+  </div>
+
+  <!-- 1 · PORTADA -->
+  <section class="section section-light" id="hero">
+    <div class="fade-up">
+      <p class="hero-eyebrow">MiTelco · Análisis Estratégico · Junio 2026</p>
+    </div>
+    <div class="fade-up d1">
+      <h1 class="display">Del diagnóstico<br/>a la acción.</h1>
+    </div>
+    <div class="fade-up d2" style="margin-top:28px; max-width:680px;">
+      <p class="body-large">Puntos críticos, oportunidades estratégicas y hoja de ruta priorizada a partir de insights de investigación de usuarios.</p>
+    </div>
+    <p class="hero-kicker fade-up d3">Insights de Investigación de Usuarios · Junio 2026</p>
+    <div class="hero-meta">
+      <span class="hero-meta-label">Documento de estrategia · Confidencial</span>
+      <div class="scroll-cue">
+        <span>Navegar</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · USUARIOS -->
+  <section class="section section-light" id="personas" style="min-height:auto; padding-top:120px; padding-bottom:80px;">
+    <div class="section-label fade-up">
+      <div class="label-bar"></div>
+      <span class="label-text">Sección 01 · El Porqué</span>
+    </div>
+    <div class="fade-up d1">
+      <h2 class="heading">La voz del usuario revela una brecha sistémica<br/>entre promesa y realidad.</h2>
+    </div>
+    <div class="personas-grid" style="margin-top:48px;">
+      <div class="persona-card fade-up d2">
+        <div class="persona-label">Júlia, 27 años</div>
+        <blockquote class="persona-quote">"No busco funcionalidades. Busco que la tecnología anticipe mi contexto — velocidad, proactividad, eficiencia."</blockquote>
+      </div>
+      <div class="persona-card fade-up d3">
+        <div class="persona-label">Mateo, Crypto-Native</div>
+        <blockquote class="persona-quote">"Abandono cualquier proceso con fricción. Si no funciona desde el primer contacto, no soy tu cliente."</blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · PROBLEMA CENTRAL -->
+  <section class="section section-card" id="problem">
+    <div>
+      <div class="section-label fade-up">
+        <div class="label-bar"></div>
+        <span class="label-text">El problema central</span>
+      </div>
+      <h2 class="heading fade-up d1">Datos ricos,<br/>completamente<br/>subutilizados.</h2>
+      <div style="margin-top:24px; max-width:520px;" class="fade-up d2">
+        <p class="body-large">La empresa posee tecnología predictiva disponible pero la arquitectura en silos y la latencia de 48h bloquean su uso operativo. El resultado: solo se reacciona cuando el cliente llama a cancelar, perpetuando un círculo vicioso de descuentos genéricos que destruyen margen sin generar lealtad.</p>
+      </div>
+    </div>
+    <div class="stat-stack fade-up d2">
+      <div class="stat-row">
+        <span class="big-number">80%</span>
+        <span class="stat-desc">Precisión del score de churn que Marketing no utiliza</span>
+      </div>
+      <div class="stat-row">
+        <span class="big-number">48h</span>
+        <span class="stat-desc">Retraso en datos de uso que bloquea la predicción</span>
+      </div>
+      <div class="stat-row">
+        <span class="big-number">30%</span>
+        <span class="stat-desc">Descuento genérico como único recurso de retención</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · PUNTOS CRÍTICOS -->
+  <section class="criticos-section" id="criticos">
+    <div class="criticos-header">
+      <div>
+        <div class="section-label fade-up" style="margin-bottom:16px;">
+          <div class="label-bar"></div>
+          <span class="label-text">Sección 02 · Puntos Críticos</span>
+        </div>
+        <h2 class="heading fade-up d1">Cinco fricciones sistémicas<br/>que erosionan valor.</h2>
+      </div>
+      <div class="criticos-count fade-up d1">05</div>
+    </div>
+    <div class="criticos-grid">
+      <div class="critico-card fade-up">
+        <div class="critico-num">1</div>
+        <div class="critico-stage">Oferta / Competitividad</div>
+        <div class="critico-title">Rigidez en desarrollo de productos</div>
+        <div class="critico-body">El sistema de billing monolítico requiere 18 meses para lanzar planes modulares.</div>
+        <div class="critico-bottom">18 meses vs. 18 días de la competencia</div>
+      </div>
+      <div class="critico-card fade-up d1">
+        <div class="critico-num">2</div>
+        <div class="critico-stage">Onboarding / Adquisición</div>
+        <div class="critico-title">Fricción en verificación biométrica</div>
+        <div class="critico-body">El sistema falla con poca luz, causando abandono en segmentos de alto valor tecnológicamente exigentes.</div>
+        <div class="critico-bottom">Sin fallback efectivo disponible</div>
+      </div>
+      <div class="critico-card fade-up d2">
+        <div class="critico-num">3</div>
+        <div class="critico-stage">Operaciones / Predicción</div>
+        <div class="critico-title">Latencia de datos crítica</div>
+        <div class="critico-body">Datos con 48h de retraso. CRM requiere 3 pantallas. Score de churn al 80% sin activar por silos organizacionales.</div>
+        <div class="critico-bottom">Reacción tardía siempre</div>
+      </div>
+      <div class="critico-card fade-up d3">
+        <div class="critico-num">4</div>
+        <div class="critico-stage">Retención</div>
+        <div class="critico-title">Modelo de retención insostenible</div>
+        <div class="critico-body">Dependencia 100% en descuentos del 30% por 6 meses. Agentes sin autonomía. TMA de 5 min impide atención real.</div>
+        <div class="critico-bottom">Churn cíclico al séptimo mes</div>
+      </div>
+      <div class="critico-card fade-up d4">
+        <div class="critico-num">5</div>
+        <div class="critico-stage">Uso / Servicio</div>
+        <div class="critico-title">Complejidad de facturación y SVAs</div>
+        <div class="critico-body">Facturas generan 40% de llamadas al SAC. SVAs se activan sin consentimiento. Cancelar uno toma 20 minutos.</div>
+        <div class="critico-bottom">40% de llamadas por facturación</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · OPORTUNIDADES -->
+  <section class="opps-section" id="oportunidades">
+    <div class="opps-header">
+      <div>
+        <div class="section-label fade-up" style="margin-bottom:16px;">
+          <div class="label-bar green"></div>
+          <span class="label-text">Sección 03 · Oportunidades Estratégicas</span>
+        </div>
+        <h2 class="heading fade-up d1">Cinco intervenciones<br/>de alto valor.</h2>
+      </div>
+      <p class="body-large fade-up d1" style="max-width:360px; text-align:right;">Vinculadas directamente a los puntos débiles identificados.</p>
+    </div>
+    <div class="opps-grid">
+      <div class="opp-card fade-up">
+        <div class="opp-priority">Oportunidad 01 · Prioridad alta · 0–3 meses</div>
+        <div class="opp-title">Activación del score de churn existente</div>
+        <div class="opp-body">El modelo predictivo con 80% de precisión ya está entrenado pero Marketing no lo usa. Habilitarlo en campañas proactivas permite anticipar cancelaciones sin desarrollo nuevo.</div>
+        <div class="opp-resolves">Resuelve → Latencia de datos + Modelo de retención</div>
+      </div>
+      <div class="opp-card fade-up d1">
+        <div class="opp-priority">Oportunidad 02 · Prioridad alta · 3–6 meses</div>
+        <div class="opp-title">Verificación biométrica resiliente</div>
+        <div class="opp-body">Migración a SDK optimizado para luz baja (FaceTec/Onfido), ajuste automático de brillo y fallback documento+selfie. Meta: más de 95% tasa de éxito.</div>
+        <div class="opp-resolves">Resuelve → Fricción en onboarding</div>
+      </div>
+      <div class="opp-card fade-up d2">
+        <div class="opp-priority">Oportunidad 03 · Prioridad alta · 3–6 meses</div>
+        <div class="opp-title">Autonomía de agentes SAC</div>
+        <div class="opp-body">Motor de reglas configurable por perfil de agente para ofrecer beneficios personalizados (días gratis, SVA de cortesía) con auditoría automática. Objetivo: reducir TMA de 5 a 3 minutos.</div>
+        <div class="opp-resolves">Resuelve → Modelo de retención + Atención al cliente</div>
+      </div>
+      <div class="opp-card fade-up d3">
+        <div class="opp-priority">Oportunidad 04 · Prioridad media · 6–12 meses</div>
+        <div class="opp-title">Facturación visual y transparente</div>
+        <div class="opp-body">Desglose visual por categoría, lenguaje simple, alertas de cargos nuevos y gestión de SVAs desde la factura. Objetivo: reducir 40% de llamadas al SAC por facturación.</div>
+        <div class="opp-resolves">Resuelve → Complejidad de facturación</div>
+      </div>
+      <div class="opp-card wide fade-up d4">
+        <div class="opp-priority">Oportunidad 05 · Transformación · 6–18 meses</div>
+        <div class="opp-title">Refactoring del billing + Plataforma de datos en tiempo real</div>
+        <div class="opp-body">Migrar billing monolítico a arquitectura modular y datos a event-driven (Kafka/Kinesis). Llevar latencia de 48h a menos de 5 minutos. Habilita planes flexibles, análisis predictivo y asistente IA contextual para usuarios como Júlia.</div>
+        <div class="opp-resolves">Resuelve → Rigidez de producto + Latencia de datos + Expectativas de IA</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · HOJA DE RUTA -->
+  <section class="roadmap-section" id="roadmap">
+    <div class="roadmap-header">
+      <div class="section-label fade-up" style="margin-bottom:16px;">
+        <div class="label-bar" style="background:#f7f3ea;opacity:0.5;"></div>
+        <span class="label-text" style="color:rgba(247,243,234,0.5);">Sección 04 · Hoja de Ruta</span>
+      </div>
+      <h2 class="heading fade-up d1" style="color:#f7f3ea;">Tres horizontes<br/>de transformación.</h2>
+    </div>
+    <div class="roadmap-grid">
+      <div class="phase-card fade-up">
+        <div class="phase-horizon">0–3 meses · Quick wins</div>
+        <div class="phase-title">Activar lo que ya existe</div>
+        <div class="phase-items">
+          <div class="phase-item"><div class="phase-dot"></div>Activar score de churn (80% accuracy) en campañas proactivas de Marketing.</div>
+          <div class="phase-item"><div class="phase-dot"></div>Piloto de autonomía de agentes SAC en segmento controlado.</div>
+          <div class="phase-item"><div class="phase-dot green"></div>Medir TMA, FCR y NPS antes de escalar.</div>
+        </div>
+      </div>
+      <div class="phase-card fade-up d1">
+        <div class="phase-horizon">3–6 meses · Eliminar fricciones críticas</div>
+        <div class="phase-title">Experiencia sin abandono</div>
+        <div class="phase-items">
+          <div class="phase-item"><div class="phase-dot"></div>SDK biométrico low-light con fallback documento+selfie. Meta: más de 95% éxito.</div>
+          <div class="phase-item"><div class="phase-dot"></div>Motor de reglas de agentes a escala con auditoría y P&L visible.</div>
+          <div class="phase-item"><div class="phase-dot green"></div>Facturación visual transparente con gestión de SVAs desde la app.</div>
+        </div>
+      </div>
+      <div class="phase-card fade-up d2">
+        <div class="phase-horizon">6–18 meses · Transformación arquitectónica</div>
+        <div class="phase-title">Infraestructura para el futuro</div>
+        <div class="phase-items">
+          <div class="phase-item"><div class="phase-dot"></div>Refactoring billing monolítico a API de pricing dinámico. Time-to-market de 18 a 6 meses.</div>
+          <div class="phase-item"><div class="phase-dot"></div>Migración a event-driven (Kafka/Kinesis). Latencia de 48h a menos de 5 minutos.</div>
+          <div class="phase-item"><div class="phase-dot green"></div>Asistente IA contextual con NLP, Computer Vision y voz. Respuestas en menos de 2 segundos.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · CIERRE -->
+  <section class="section section-light" id="cierre" style="min-height:60vh;">
+    <h2 class="cierre-title fade-up">Las herramientas para <em>ganar</em> ya existen dentro de la empresa.<br/>Solo hay que activarlas en el orden correcto.</h2>
+    <div class="cta-row fade-up d1">
+      <a href="#hero" class="btn-primary">
+        Ver de nuevo
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 13V1M1 7L7 1L13 7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#criticos" class="btn-outline">Ir a puntos críticos</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="f-left">
+      <div class="logo-bar" style="height:16px;"></div>
+      <span class="f-label">MiTelco · Análisis Estratégico · Junio 2026</span>
+    </div>
+    <span class="f-label">Documento confidencial · Insights de Investigación de Usuarios</span>
+  </footer>
+
+  <script>
+    // —— Scroll spy for nav dots ——
+    const sections = ['hero','personas','problem','criticos','oportunidades','roadmap','cierre'];
+    const dots = document.querySelectorAll('.nav-dot');
+
+    function updateDots() {
+      const scrollY = window.scrollY + window.innerHeight * 0.4;
+      let active = 0;
+      sections.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollY) active = i;
+      });
+      dots.forEach((d, i) => d.classList.toggle('active', i === active));
+    }
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        const el = document.getElementById(sections[i]);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    window.addEventListener('scroll', updateDots, { passive: true });
+    updateDots();
+
+    // —— Intersection observer for fade-up ——
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('in');
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
